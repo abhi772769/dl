@@ -1,0 +1,72 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.neural_network import MLPRegressor  # Importing a simple neural network regressor from scikit-learn
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings('ignore')
+
+# Step 2: Load the Dataset
+boston = pd.read_csv("boston_house_prices.csv")  # Reads CSV file into a DataFrame
+X = boston[['LSTAT', 'RM', 'PTRATIO']]  # Selecting 3 features
+
+# Target variable: House Price
+y = boston['PRICE']
+
+# Step 3: Train-Test Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=4)
+
+# Step 4: Feature Scaling
+scaler = StandardScaler()  # Initializing StandardScaler
+X_train_scaled = scaler.fit_transform(X_train)  # Fit and transform training data
+X_test_scaled = scaler.transform(X_test)  # Transform test data using the same scaler
+
+# Step 5: Linear Regression Model
+lr_model = LinearRegression()  # Initializing Linear Regression Model
+lr_model.fit(X_train_scaled, y_train)  # Training the model using scaled training data
+
+# Predicting house prices on test data
+y_pred_lr = lr_model.predict(X_test_scaled)
+
+# Evaluating Linear Regression Model
+mse_lr = mean_squared_error(y_test, y_pred_lr)
+mae_lr = mean_absolute_error(y_test, y_pred_lr)
+r2_lr = r2_score(y_test, y_pred_lr)
+
+# Displaying evaluation metrics for Linear Regression
+print("Linear Regression Model Evaluation:")
+print(f"Mean Squared Error: {mse_lr}")
+print(f"Mean Absolute Error: {mae_lr}")
+print(f"R2 Score: {r2_lr}")
+
+# Step 6: Simple Neural Network Model using MLPRegressor (from scikit-learn)
+mlp_model = MLPRegressor(hidden_layer_sizes=(128, 64, 32, 16), activation='relu', max_iter=1000, random_state=4)
+
+# Training the Neural Network
+mlp_model.fit(X_train_scaled, y_train)
+
+# Predicting house prices using the trained neural network
+y_pred_nn = mlp_model.predict(X_test_scaled)
+
+# Evaluating Neural Network Model
+mse_nn = mean_squared_error(y_test, y_pred_nn)
+mae_nn = mean_absolute_error(y_test, y_pred_nn)
+
+# Displaying evaluation metrics for Neural Network
+print("\nNeural Network Model Evaluation:")
+print(f"Mean Squared Error: {mse_nn}")
+print(f"Mean Absolute Error: {mae_nn}")
+
+# Step 7: House Price Prediction for New Data
+new_data = np.array([[0.1, 10.0, 5.0]])  # New data point
+new_data_scaled = scaler.transform(new_data)  # Standardize using same scaler
+
+# Predicting price using trained neural network model
+prediction = mlp_model.predict(new_data_scaled)
+
+# Displaying the predicted house price
+print("\nPredicted House Price:", prediction[0])
